@@ -1,7 +1,7 @@
 
 # Homework Assignment 3
 
-This repository contains all the relevant materials for your first homework assignment. To work on the assignment, you have open the repository as a new project in RStudio on your computer. Note that we already did that with the material for the first lab sessions and it works in exactly the same way for this homework assignment. Nevertheless, we once more add instructions on how to open the project in RStudio below, just in case you still struggle with the process. 
+This repository contains all the relevant materials for the first homework assignment. To work on the assignment, you have open the repository as a new project in RStudio on your computer. Note that we already did that with the material for the first lab sessions and it works in exactly the same way for this homework assignment. Nevertheless, we once more add instructions on how to open the project in RStudio below, just in case you still struggle with the process. 
 
 
 ## 1. How to **open the assignment in RStudio**
@@ -69,4 +69,3 @@ Once you are done with the assignment, you need to save it on GitHub. This works
   7. Now you can go to the repository on GitHub and check whether it is updated to the most current version of your assignment.
 
 
-**NOTE:** The deadline for the assignments is on **Tuesday 23:59**. You have to push your assignment before that deadline. The evaluation of your assignment will be based on the last version you pushed to GitHub before the deadline.
