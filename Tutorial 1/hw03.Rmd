@@ -1,0 +1,452 @@
+---
+title: "Quantitative Methods in Political Science - Homework 3"
+author: "Omid Soroush (1/3), David Probst (1/3), Esther Vogt (1/3)"
+date: "Due: October 20, 2020"
+output:
+  html_document:
+    toc: no
+  html_notebook:
+    toc: no
+  pdf_document:
+    toc: yes
+---
+
+
+```{r setup, include=FALSE}
+# The first line sets an option for the final document that can be produced from
+# the .Rmd file. Don't worry about it.
+knitr::opts_chunk$set(echo = TRUE)
+
+# The next bit (lines 22-43) is quite powerful and useful. 
+# First you define which packages you need for your analysis and assign it to 
+# the p_needed object. 
+p_needed <-
+  c("viridis")
+
+# Now you check which packages are already installed on your computer.
+# The function installed.packages() returns a vector with all the installed 
+# packages.
+packages <- rownames(installed.packages())
+# Then you check which of the packages you need are not installed on your 
+# computer yet. Essentially you compare the vector p_needed with the vector
+# packages. The result of this comparison is assigned to p_to_install.
+p_to_install <- p_needed[!(p_needed %in% packages)]
+# If at least one element is in p_to_install you then install those missing
+# packages.
+if (length(p_to_install) > 0) {
+  install.packages(p_to_install)
+}
+# Now that all packages are installed on the computer, you can load them for
+# this project. Additionally the expression returns whether the packages were
+# successfully loaded.
+sapply(p_needed, require, character.only = TRUE)
+```
+
+ **Note:** If you do not have any special reason, pleas do not load additional packages to solve this homework assignment. If you nevertheless do so, please indicate why you think this is necessary and add the package to the `p_needed` vector in the setup chunk above.
+
+## Part 1: Definitions
+
+**1.1 What is a sampling distribution?**
+
+Answer: 
+
+* A sampling distribution is a probability distribution of estimates of the population feature obtained from a larger number of samples drawn from a specific population. 
+
+* For example, if we want to obtain the sampling distribution of a mean, we proceed as follows: we take samples from our population over and over again, and for each individual sample we calculate the mean. These means which vary from each other constitute the sampling distribution.
+  
+* Moreover, according to the Central Limit Theorem the sampling distribution of the means follows a normal distribution of N(0,1).
+  
+**1.2 What is a confidence interval? Which assumptions does it rely on?**
+
+Answer:
+
+* Confidence intervals are used to give us an interval estimate for some feature of the population of interest. 
+
+* Single point estimates are not good measures of the parameter because they rarely capture the true value of the parameter. Therefore if we choose a range of values for our estimation of the true value in the population, we are better off. 
+
+* Confidence interval has a center which is our best point estimate, a lower bound and an upper bound. CI are constructed from the point estimate + and - margin of error. 
+
+* Assumptions of CIs are as follows:
+
+    1. The data is distributed normally. The data should be normally distributed because we use the z-score as a multiplier to construct the CI. However, we can also use confidence interval for skewed data given that our sample size is large enough. In sum, when constructing CI we should think about our sample size and its randomness. A Q-Q plot or a histogram will help to check the normality assumption. 
+
+    2. The data is considered a random sample. In other words, the data needs to be representative of the larger population. Non-random and convenient data does not reflect the population of interest.
+
+    3. Finally in case of having two samples for which we want to compare some estimates, these samples need to be independent of each other. Normally, data which is drawn randomly, also meets the assumption of independence of sample values. 
+
+## Part 2: Confidence Intervals
+
+*You collected a random sample of 50 students and asked them to rate chancellor Merkel on a scale from 1 to 5. The mean score is $2.3$ and the sample has a standard deviation of $.86$.*
+
+**2.1 Estimate Merkel’s rating for the population of students and calculate a 95% and a 99% confidence interval.**
+  
+```{r Exercise 2_1}
+
+# initialize sample parameters
+m_sample <- 2.3 # mean of sample
+sd_sample <- 0.86 #standard deviation of sample
+n_sample_sm <- 50 #sample size (sm: small sample)
+
+# calculate standard error of mean
+se_sample_sm <- sd_sample / sqrt(n_sample_sm)
+
+# calculate 95% CI using the analytical approach
+ci_95_l_sm <- m_sample + qnorm(0.025,0,1) * se_sample_sm
+ci_95_u_sm <- m_sample + qnorm(0.975,0,1) * se_sample_sm
+ci_95_an_sm <- c(ci_95_l_sm, ci_95_u_sm)
+
+# calculate 99% CI using the analytical approach 
+ci_99_l_sm <- m_sample + qnorm(0.005,0,1) * se_sample_sm
+ci_99_u_sm <- m_sample + qnorm(0.995,0,1) * se_sample_sm
+ci_99_an_sm <- c(ci_99_l_sm, ci_99_u_sm)
+
+# present the results for both CIs in a table.
+t_sample <- matrix(NA, 2, 2)
+t_sample[1, ] <- ci_95_an_sm
+t_sample[2, ] <- ci_99_an_sm
+rownames(t_sample) <- c("analytical 95% CI", "analytical 99% CI")
+colnames(t_sample) <- c("lower bound", "upper bound")
+knitr::kable(t_sample)
+
+```
+
+Answer: There is a 95% chance that the interval of [2.55; 2.61] will include the average rating for Merkel in the overall population of students and a 99% that the range of [2.54; 2.62] contains it.
+
+**2.2 Imagine you had obtained the same information from a sample of 100 students. Calculate the 95% confidence interval. How and why does it differ from the previous one?**
+
+```{r Exercise 2_2}
+
+# initialize the sample size
+n_sample_l <- 100 ##sample size (l: larger sample)
+
+# re-calculate standard error of mean
+se_sample_l <- sd_sample / sqrt(n_sample_l)
+
+# calculate 95% CI using the analytical approach
+ci_95_l_l <- m_sample + qnorm(0.025,0,1) * se_sample_l
+ci_95_u_l <- m_sample + qnorm(0.975,0,1) * se_sample_l
+ci_95_an_l <- c(ci_95_l_l, ci_95_u_l)
+
+# compare results for both sample sizes in a table
+t_sample <- matrix(NA, 2, 2)
+t_sample[1, ] <- ci_95_an_sm #n=50
+t_sample[2, ] <- ci_95_an_l #n=100
+rownames(t_sample) <- c("analytical 95% CI (n=50)", "analytical 95% CI (n=100)")
+colnames(t_sample) <- c("lower bound", "upper bound")
+knitr::kable(t_sample)
+
+```
+
+Answer: 
+
+* For the smaller sample (n=50), the 95% CI coveres a wider range of values than the larger sample (n=100). 
+
+* This is due to the characteristic of a sampling distribution approaching a standard normal distribution with increasing sample size n.
+
+* The means found by sampling will approach the true parameter the more the sample size approaches the size of the true population. 
+
+* Thereby, an increasing sample size also increases the certainty about the interval covering the true parameter. 
+
+* The sample means will be distributed closer around the mean whereby the range of the CI is more narrow.
+
+**2.3 Repeat (1) and (2) but this time construct the confidence interval using simulation. Plot the resulting distribution. How and if why is it different to the analytical one?**
+
+```{r Exercise 2_3}
+
+### initialize parameter for #samples
+n_sim <- 1000 
+
+### generate sampling distribution using the parametric simulation (with SE as standard deviation of normal distribution)
+
+#(1) small sample: n=50
+sample_sim_sm <- rnorm(n = n_sim, # taking n_sim draws from sampling distribution 
+                    mean = m_sample, 
+                    sd = se_sample_sm) #standard error for sample with n=50
+
+#(2) larger sample: n=100
+sample_sim_l <- rnorm(n = n_sim, # taking n_sim draws from sampling distribution 
+                    mean = m_sample, 
+                    sd = se_sample_l) #standard error for sample with n=100
+
+### calculate empirical quantiles from the distribution
+
+#(1) small sample: n=50
+ci_95_sim_sm <- quantile(sample_sim_sm, c(0.025, 0.975)) #95% CI
+ci_99_sim_sm <- quantile(sample_sim_sm, c(0.005, 0.995)) #99% CI
+
+#(2) larger sample: n=100 (only 95% CI)
+ci_95_sim_l <- quantile(sample_sim_l, c(0.025, 0.975)) #95% CI
+
+### plot simulated sampling distribution with CIs
+
+#(1) small sample: n=50
+hist(x = sample_sim_sm,
+     main = "Sampling Distribution of the Sample Mean (via Simulation)\n(n=50)",
+     xlab = "Average rating among students for Merkel",
+     las = 1, # position of axis labels: horizontal
+     col = viridis(2)[1],
+     border = F,
+     breaks = 20, 
+     freq = FALSE,
+     #yaxt = "n", # plot y axis or not
+     ylab = ""
+     )
+
+# add lines for density
+lines(density(sample_sim_sm),
+      col = viridis(2)[2],
+      lwd = 2)
+
+# add lines for 95% CI
+abline(v = ci_95_sim_sm, #abline used to draw lines within a plot
+       col = adjustcolor(viridis(4)[3], alpha = 0.75), # alpha for transparency
+       lwd = 2, 
+       lty = 2)
+
+# add lines for 99% CI
+abline(v = ci_99_sim_sm, 
+       col = adjustcolor(viridis(4)[4], alpha = 0.75), 
+       lwd = 2, #line width
+       lty = 2) #line type: 2=dashed
+
+# add a legend
+legend("topright",
+       bty = "n",
+       col = viridis(4)[3:4], 
+       lwd = 2,
+       lty = 2,
+       legend = c("simulated 95% CI",
+                  "simulated 99% CI"))
+
+#(2) larger sample: n=100 (only 95% CI)
+hist(x = sample_sim_l,
+     main = "Sampling Distribution of the Sample Mean (via Simulation)\n(n=100)",
+     xlab = "Average rating among students for Merkel",
+     las = 1, # position of axis labels: horizontal
+     col = viridis(2)[1],
+     border = F,
+     breaks = 20, 
+     freq = FALSE,
+     #yaxt = "n", # plot y axis or not
+     ylab = ""
+     )
+
+# add lines for density
+lines(density(sample_sim_l),
+      col = viridis(2)[2],
+      lwd = 2)
+
+# add lines for 95% CI
+abline(v = ci_95_sim_l, #abline used to draw lines within a plot
+       col = adjustcolor(viridis(4)[3], alpha = 0.75), # alpha for transparency
+       lwd = 2, 
+       lty = 2)
+
+# add a legend
+legend("topright",
+       bty = "n",
+       col = viridis(4)[3], 
+       lwd = 2,
+       lty = 2,
+       legend = c("simulated 95% CI"))
+
+### Difference between simulated and analytical CIs: present the results for both CIs in a table
+
+# initialize matrix
+t_sample <- matrix(NA, 3, 6)
+
+#(1) small sample: n=50
+t_sample[1, ] <- c(ci_95_sim_sm, ci_95_an_sm, ci_95_sim_sm - ci_95_an_sm) 
+t_sample[2, ] <- c(ci_99_sim_sm, ci_99_an_sm, ci_99_sim_sm - ci_99_an_sm)
+
+#(2) larger sample: n=100 (only 95% CI)
+t_sample[3, ] <- c(ci_95_sim_l, ci_95_an_l, ci_95_sim_l - ci_95_an_l)
+
+rownames(t_sample) <- c("95% CI (n=50)", "99% CI (n=50)", "95% CI (n=100)")
+colnames(t_sample) <- c("lower bound sim", "upper bound sim",
+                        "lower bound an", "upper bound an",
+                        "lower bound diff", "upper bound diff")
+knitr::kable(t_sample)
+
+```
+
+Answer: 
+
+* Both interval estimates differ slightly due to their differing sampling approaches: the analytical approach calculates confidence intervals based on one sample, parametric simulation replicates the given sample. With an increasing number of simulated samples, it will thus approach the assumed true parameter based on the sample estimates.
+
+* However, the difference is quite close to zero which is assumed to be a good orientation.
+
+## Part 3: Smart Mannheim Students
+
+*In the general population IQ is distributed normally with a mean of 100 and a standard deviation of 19. You take a simple random sample of 40 students in Mannheim and find that their mean IQ is 117.* 
+
+**3.1 Calculate the standard error of the mean.**
+
+```{r Exercise 3_1}
+
+# initialize distribution parameters
+m_pop_iq <- 100 #population mean
+sd_pop_iq <- 19 #population sd
+n_sam_iq <- 40 #sample size
+m_sam_iq <- 117 #sample mean
+
+# standard error of the estimate of the pop mean
+se_iq <- sd_pop_iq / sqrt(n_sam_iq)
+se_iq
+
+```
+
+Answer: The standard error of the estimate of the population mean $SE(\hat\theta)$ equals ~3.00.
+
+
+**3.2 Someone claims that the students have a higher IQ than the general population. Given your data, do you agree?**
+
+```{r Exercise 3_2}
+
+# mean iq of sample +- standard error of the mean
+bnd_sam_iq <- c(m_sam_iq - se_iq, m_sam_iq + se_iq)
+bnd_sam_iq
+
+# mean iq of sample +- standard error of the mean * 1.96
+ci_low <- m_sam_iq + qnorm(0.025, 0, 1) * se_iq
+ci_up <-  m_sam_iq + qnorm(0.975, 0, 1) * se_iq
+bnd_sam_iq_95 <- c(ci_low, ci_up)
+bnd_sam_iq_95
+
+## compare results in a table
+
+# initialize matrix
+t_sample <- matrix(NA, 2, 2)
+t_sample[1, ] <- bnd_sam_iq 
+t_sample[2, ] <- bnd_sam_iq_95
+
+rownames(t_sample) <- c("mean +/- standard error", "mean +/- 1.96 * standard error")
+colnames(t_sample) <- c("lower bound", "upper bound")
+knitr::kable(t_sample)
+
+```
+
+Answer: 
+
+* Even though the range of the 95% CI [111.11; 122.89] is wider than the interval of mean +/- standard error [114.00; 120.00], both ranges do not cover the true population mean of 100.
+
+* Based on the sample, one would assume a true population mean above 100 with high certainty which indicates that the students in the sample have an above average IQ. 
+
+**3.3 What is more likely?  Observing a sample with mean IQ of 117, or observing an individual with an IQ of 117?**
+
+Answer: 
+
+* The probability of observing a sample with mean IQ of 117 equals the probability of a single point in the sampling distribution (which shows the distribution of sample means). This probability equals the integral of the probability density function over a single point, which is zero considering a continuous normal distribution.
+
+* Assuming that IQ is normally distributed, the same holds true for the distribution of the population: the probability of picking an individual person (data point) from this continuous normal distribution equals zero.
+
+* Thus, both cases share the same probability: zero.
+
+* However, in case IQ would be considered a discrete instead of a continuous variable, the probability of picking a single individual with IQ=117 would be unequal to zero and thus larger than picking a sample with a mean of 117. 
+
+
+## Part 4: Proportions
+
+*Suppose that a military dictator in an unnamed country holds a plebiscite (a yes/no vote of confidence) and claims that he was supported by 68\% of the voters. A human rights group suspects foul play and hires you to test the validity of the dictator's claim. You have a budget that allows you to randomly sample 180 voters from the country. You collect your sample of 180, and you find that 95 people actually voted yes.*
+
+
+**4.1 Given the information from the sample, what is the probability that at least 68\% of the population voted yes?**
+
+```{r Exercise 4_1}
+
+# initialize parameters
+sam_n <- 180
+pop_m <- 0.68
+sam_m <- 95/sam_n #sample share/prob for yes #0.5277778
+pop_m_cnt <- pop_m * sam_n
+
+## Option (1): calculating the probability based on a binomial distribution
+
+# probability of population mean being > .68
+prob_pop_1 <- pbinom(pop_m_cnt, sam_n, sam_m, lower.tail = F)
+
+# plot CDF of binomail distribution
+x_values <- c(0:180)
+plot(x = x_values, 
+     y = pbinom(x_values, size = sam_n, prob = sam_m),
+     type = "p",
+     main = "CDF for Binomial (n = 180, p = 0.52)",
+     xlab = "x",
+     ylab = "pbinom()",
+     bty = "n",
+     las = 1,
+     pch = 19, 
+     cex = 0.8, 
+     col = viridis(1),
+     frame = F
+)
+
+## Option (2): calculating the probability based on the normally distributed sampling distribution using the standard error of proportions
+
+# initialize parameters
+n_sim <- 1000
+
+# standard error for proportions
+sam_se <- sqrt(sam_m * (1-sam_m) / sam_n) #[1] 0.03721024
+
+# probability of mean >= 0.68: assume normally distributed sampling distribution of ratios
+prob_pop_2 <- 1 - pnorm(0.68, sam_m, sam_se)
+
+# plot PDF of sampling distribution of ratio
+x_values <- c(0:200) 
+plot(density(rnorm(n_sim, sam_m, sam_se)), #draw sample (from assumed normal distribution)
+     #y = pbinom(x_values, size = sam_n, p = sam_m),
+     type = "p",
+     main = "PDF for simulated distribution of ratios (m = 0.53, sd = se = 0.04)",
+     xlab = "x",
+     ylab = "probability density",
+     bty = "n",
+     las = 1,
+     pch = 19, 
+     cex = 0.3, 
+     col = viridis(1),
+     frame = F
+     )
+
+## compare results in a table
+
+# initialize matrix
+t_sample <- matrix(NA, 2, 1)
+t_sample[1, ] <- prob_pop_1*100 
+t_sample[2, ] <- prob_pop_2*100
+
+rownames(t_sample) <- c("probability according to binomial distribution", 
+                        "probability according to normal sampling distribution")
+colnames(t_sample) <- c("(%)")
+knitr::kable(t_sample)
+
+```
+
+Answer: The rounded probability of at least 68\% of the population voting 'yes' based on a binomial distribution as well as an assumed normal sampling distribution is only 0.002\%.
+
+**4.2 What is the probability that a majority of people in the country support the dictator?**
+
+```{r Exercise 4_2}
+# majority: probability of people voting 'yes' is > 50%
+
+## Option (1): calculating the probability based on a binomial distribution
+prop_maj_1 <- pbinom(0.5*sam_n, sam_n, sam_m, lower.tail = F)
+
+## Option (2): calculating the probability based on the normally distributed sampling distribution using the standard error of proportions
+prop_maj_2 <- 1 - pnorm(0.50, sam_m, sam_se) # 1 - P(X <= 0.5) = P(X > 0.5)
+
+## compare results in a table
+
+# initialize matrix
+t_sample <- matrix(NA, 2, 1)
+t_sample[1, ] <- prop_maj_1*100 
+t_sample[2, ] <- prop_maj_2*100
+
+rownames(t_sample) <- c("probability according to binomial distribution", 
+                        "probability according to normal sampling distribution")
+colnames(t_sample) <- c("(%)")
+knitr::kable(t_sample) 
+
+```
+
+Antwort: The probability that the ratio of people supporting the dictator with a 'yes' vote is larger than 50% is 75% based on the binomial distribution and 77% based on the sampling distribution.
